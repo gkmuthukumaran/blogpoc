@@ -11,7 +11,7 @@ import (
 func GetBlogDetails(id string) ([]model.Blog, error) {
 	var blogs []model.Blog
 	err := db.View(func(tx *bolt.Tx) error {
-		b := tx.Bucket([]byte("DB")).Bucket([]byte("BLOG"))
+		b := tx.Bucket([]byte(dbname)).Bucket([]byte("BLOG"))
 		matched := false
 		b.ForEach(func(k, v []byte) error {
 			if !matched{
@@ -45,6 +45,7 @@ func GetBlogDetails(id string) ([]model.Blog, error) {
 	}
 return blogs, nil
 }		
+
 func InsertBlogDetails(blog model.Blog) error {
 	data, err := json.Marshal(blog)
 	if err != nil {
@@ -52,7 +53,7 @@ func InsertBlogDetails(blog model.Blog) error {
 	}
 	err = db.Update(func(tx *bolt.Tx) error {
 		
-		err := tx.Bucket([]byte("DB")).Bucket([]byte("BLOG")).Put([]byte(blog.Id), []byte(data))
+		err := tx.Bucket([]byte(dbname)).Bucket([]byte("BLOG")).Put([]byte(blog.Id), []byte(data))
 		if err != nil {
 			return fmt.Errorf("could not insert Blog: %v", err)
 		}

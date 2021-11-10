@@ -8,6 +8,26 @@ import (
 	"github.com/boltdb/bolt"
 )
 
+func initialiseUserDetails() {
+
+	user, err := GetUserDetails("bloguser")
+
+	fmt.Println("testSetupInit", err)
+	if err == nil && user != nil && user.Username != "" {
+		return
+	}
+
+	newuser := model.User{
+
+		Username: "bloguser",
+
+		Password: "p@ss1234",
+	}
+	fmt.Println("beforeInsert")
+	InsertUserDetails(newuser)
+
+}
+
 func InsertUserDetails(user model.User) error {
 	data, err := json.Marshal(user)
 	if err != nil {
@@ -15,7 +35,8 @@ func InsertUserDetails(user model.User) error {
 	}
 	err = db.Update(func(tx *bolt.Tx) error {
 
-		err := tx.Bucket([]byte("DB")).Bucket([]byte("BLOG")).Put([]byte(user.Username), []byte(data))
+		err := tx.Bucket([]byte(dbname)).Bucket([]byte("USER")).Put([]byte(user.Username), []byte(data))
+		fmt.Println("insertTest", err)
 		if err != nil {
 			return fmt.Errorf("could not insert User: %v", err)
 		}
@@ -27,10 +48,12 @@ func InsertUserDetails(user model.User) error {
 
 func GetUserDetails(username string) (*model.User, error) {
 	var user model.User
+	fmt.Println(username)
 	err := db.View(func(tx *bolt.Tx) error {
-		b := tx.Bucket([]byte("DB")).Bucket([]byte("USER"))
-
+		b := tx.Bucket([]byte(dbname)).Bucket([]byte("USER"))
+		fmt.Println(b)
 		b.ForEach(func(k, v []byte) error {
+			fmt.Println("testLog", string(k), string(v))
 			if username == string(k) {
 				err := json.Unmarshal(v, &user)
 				if err != nil {
@@ -47,5 +70,6 @@ func GetUserDetails(username string) (*model.User, error) {
 	if err != nil {
 		return nil, err
 	}
+	fmt.Println(user)
 	return &user, nil
 }

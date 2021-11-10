@@ -31,10 +31,12 @@ func PostBlog(c echo.Context) error {
 
 	var blog model.Blog
 
-	if err := c.Bind(blog); err != nil {
+	if err := c.Bind(&blog); err != nil {
 		return c.JSON(http.StatusBadRequest, utils.BldGnrRsp(http.StatusBadRequest, err.Error(), nil))
 	}
+
 	id := uuid.New().String()
+
 	blog.Id = id
 	err := db.InsertBlogDetails(blog)
 	if err != nil {

@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/blogpoc/controllers"
+	"github.com/blogpoc/interfaces/db"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
 	"github.com/spf13/viper"
@@ -23,6 +24,8 @@ func main() {
 	}
 	port := viper.GetString("app.port")
 
+	db.SetupDB("DB")
+	defer db.Closedb()
 	// Echo instance
 	app := echo.New()
 

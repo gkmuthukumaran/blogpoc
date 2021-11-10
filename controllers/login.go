@@ -21,7 +21,7 @@ func Login(c echo.Context) error {
 
 		claims := token.Claims.(jwt.MapClaims)
 		claims["name"] = username
-		claims["exp"] = time.Now().Add(time.Minute * 3).Unix()
+		claims["exp"] = time.Now().Add(time.Minute * 300).Unix()
 
 		t, err := token.SignedString([]byte(viper.GetString("jwt.key")))
 		if err != nil {
